@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,9 +19,10 @@ import dku25.virtualization.project.util.JwtUtil;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 
+@Controller
 public class FileController {
   
-  private static final String upload_dir = "uploads/";
+  private static final String upload_dir = System.getProperty("user.dir") + "/uploads/";
 
   @Autowired
   private FileMetaRepository fileMetaRepository;

@@ -1,8 +1,9 @@
 package dku25.virtualization.project.service;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,6 +22,6 @@ public class CustomUserDetailsService implements UserDetailsService{
   public UserDetails loadUserByUsername(String username){
     User user = userRepository.findByUsername(username)
     .orElseThrow(() -> new UsernameNotFoundException("사용자 없음"));
-    return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), new ArrayList<>());
+    return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), List.of(new SimpleGrantedAuthority("ROLE_USER")));
   }
 }
