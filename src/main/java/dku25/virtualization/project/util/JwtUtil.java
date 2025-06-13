@@ -5,18 +5,28 @@ import java.util.Date;
 
 import javax.crypto.SecretKey;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Jwts.SIG;
 
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 
 
 @Component
 public class JwtUtil {
+    
+    @Value("${jwt.secret}")
+    private String secret;
 
-    private final SecretKey secretKey = Keys.hmacShaKeyFor("nu1t8forqgoTV+b0DPRKg2+/ycGMfyoaPKXVUx1mOPc=".getBytes(StandardCharsets.UTF_8));
+    private SecretKey secretKey;
+    
+    @PostConstruct
+    public void init(){
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
 
     private final long expirationMs = 1000 * 60 * 60; // 1시간
 
