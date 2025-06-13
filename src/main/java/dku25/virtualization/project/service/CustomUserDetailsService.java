@@ -6,10 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
 import dku25.virtualization.project.domain.User;
 import dku25.virtualization.project.repository.UserRepository;
 
+@Service
 public class CustomUserDetailsService implements UserDetailsService{
   
   @Autowired
