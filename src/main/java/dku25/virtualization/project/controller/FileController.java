@@ -1,76 +1,45 @@
 package dku25.virtualization.project.controller;
 
-import java.io.File;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import dku25.virtualization.project.domain.FileMeta;
+import dku25.virtualization.project.dto.FileResponseDTO;
 import dku25.virtualization.project.repository.FileMetaRepository;
-import dku25.virtualization.project.util.JwtUtil;
-import io.jsonwebtoken.JwtException;
-import jakarta.servlet.http.HttpServletRequest;
 
-@Controller
+@RestController
+@RequestMapping("/files")
 public class FileController {
   
-  private static final String upload_dir = System.getProperty("user.dir") + "/uploads/";
-
   @Autowired
   private FileMetaRepository fileMetaRepository;
 
-  @Autowired
-  private JwtUtil jwtUtil;
+  @GetMapping
+  public ResponseEntity<List<FileResponseDTO>> getMyFiles(@AuthenticationPrincipal UserDetails userDetails) {
+    String username = userDetails.getUsername();
 
-  @PostMapping("/upload")
-  public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
+    // 사용자의 파일 목록 조회
+    List<FileMeta> fileList = fileMetaRepository.findAllByUsername(username);
 
-    String authHeader = request.getHeader("Authorization");
-    if (authHeader == null || !authHeader.startsWith("Bearer ")){
-      return ResponseEntity.status(401).body("인증 토큰 없음");
-    }
+    // DTO로 변환
+    List<FileResponseDTO> result = fileList.stream()
+        .map(file -> new FileResponseDTO(
+            file.getId(),
+            file.getOriginalFilename(),
+            file.getUploadTime(),
+            file.getLinkId(),
+            file.getPermission()
+        )).collect(Collectors.toList());
 
-    String token = authHeader.substring(7);
-    String username;
-    try{
-      username = jwtUtil.extractUsername(token);
-    } catch (JwtException e) {
-      return ResponseEntity.status(401).body("유효하지 않은 토큰");
-    }
-    
-    // 업로드 디렉토리 생성
-    File dir = new File(upload_dir);
-    if (!dir.exists()) dir.mkdirs();
-
-    //저장할 파일명 생성
-    String originalFilename = file.getOriginalFilename();
-    String extension = StringUtils.getFilenameExtension(originalFilename);
-    String storedFilename = UUID.randomUUID() + "." + extension;
-
-    //파일 저장
-    file.transferTo(new File(upload_dir + storedFilename));
-
-    //메타데이터 저장
-    FileMeta meta = new FileMeta();
-    meta.setOriginalFilename(originalFilename);
-    meta.setStoredFilename(storedFilename);
-    meta.setUsername(username);
-    meta.setUploadTime(LocalDateTime.now());
-    meta.setPermission("private"); // 기본은 private
-    meta.setLinkId(UUID.randomUUID().toString());
-    meta.setPassword(null);
-
-    fileMetaRepository.save(meta);
-
-    return ResponseEntity.ok("파일 업로드 완료. 링크 ID: " + meta.getLinkId());
-
-  }
+    return ResponseEntity.ok(result);
+}
+  
 }
