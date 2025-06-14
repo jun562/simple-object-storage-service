@@ -61,13 +61,16 @@ public class FileUploadController {
 
     //메타데이터 저장
     FileMeta meta = new FileMeta();
+    meta.setSize(file.getSize());
     meta.setOriginalFilename(originalFilename);
     meta.setStoredFilename(storedFilename);
     meta.setUsername(username);
+    meta.setContentType(file.getContentType());
     meta.setUploadTime(LocalDateTime.now());
     meta.setPermission("private"); // 기본은 private
     meta.setLinkId(UUID.randomUUID().toString());
     meta.setPassword(null);
+    
 
     fileMetaRepository.save(meta);
 

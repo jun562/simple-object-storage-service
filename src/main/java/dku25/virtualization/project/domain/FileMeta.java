@@ -21,13 +21,16 @@ public class FileMeta {
   @Id
   @GeneratedValue(strategy=GenerationType.IDENTITY)
   private Long id;
+  private Long size;
   private String originalFilename;
   private String storedFilename;
   private String username;
+  private String contentType;
   private LocalDateTime uploadTime;
   private String permission; // public, private, protected
   private String linkId; // UUID로 생성
   private String password; // protected일 경우만 사용
+  
   
 
 }

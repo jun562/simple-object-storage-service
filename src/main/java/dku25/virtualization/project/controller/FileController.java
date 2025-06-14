@@ -33,10 +33,13 @@ public class FileController {
     List<FileResponseDTO> result = fileList.stream()
         .map(file -> new FileResponseDTO(
             file.getId(),
+            file.getSize(),
+            file.getUsername(),
             file.getOriginalFilename(),
             file.getUploadTime(),
             file.getLinkId(),
-            file.getPermission()
+            file.getPermission(),
+            file.getContentType()
         )).collect(Collectors.toList());
 
     return ResponseEntity.ok(result);
