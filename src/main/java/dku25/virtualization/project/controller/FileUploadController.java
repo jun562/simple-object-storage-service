@@ -36,7 +36,7 @@ public class FileUploadController {
 
     String authHeader = request.getHeader("Authorization");
     if (authHeader == null || !authHeader.startsWith("Bearer ")){
-      return ResponseEntity.status(401).body("인증 토큰 없음");
+      return ResponseEntity.status(401).body("인증 토큰이 없습니다.");
     }
 
     String token = authHeader.substring(7);
@@ -44,7 +44,7 @@ public class FileUploadController {
     try{
       username = jwtUtil.extractUsername(token);
     } catch (JwtException e) {
-      return ResponseEntity.status(401).body("유효하지 않은 토큰");
+      return ResponseEntity.status(401).body("유효하지 않은 토큰입니다.");
     }
     
     // 업로드 디렉토리 생성
@@ -74,7 +74,7 @@ public class FileUploadController {
 
     fileMetaRepository.save(meta);
 
-    return ResponseEntity.ok("파일 업로드 완료. 링크 ID: " + meta.getLinkId());
+    return ResponseEntity.ok("파일 업로드가 완료되었습니다. 링크 ID: " + meta.getLinkId());
 
   }
 }

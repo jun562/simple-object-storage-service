@@ -21,7 +21,7 @@ public class CustomUserDetailsService implements UserDetailsService{
   @Override
   public UserDetails loadUserByUsername(String username){
     User user = userRepository.findByUsername(username)
-    .orElseThrow(() -> new UsernameNotFoundException("사용자 없음"));
+    .orElseThrow(() -> new UsernameNotFoundException("사용자가 존재하지 않습니다."));
     return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), List.of(new SimpleGrantedAuthority("ROLE_USER")));
   }
 }

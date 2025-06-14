@@ -35,7 +35,7 @@ public class AuthController {
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
-        return ResponseEntity.ok("회원가입 성공");
+        return ResponseEntity.ok("회원가입에 성공하였습니다.");
     }
 
     // ✅ 로그인 및 JWT 발급
@@ -49,7 +49,7 @@ public class AuthController {
                 )
             );
         } catch (Exception e) {
-            return ResponseEntity.status(401).body("인증 실패");
+            return ResponseEntity.status(401).body("인증에 실패하였습니다.");
         }
 
         String token = jwtUtil.generateToken(loginRequest.getUsername());
