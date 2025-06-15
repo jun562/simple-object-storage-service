@@ -1,3 +1,4 @@
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
@@ -15,6 +16,11 @@ const nextConfig = {
   },
   experimental: {
     appDir: true,
+  },
+  // 서버 설정 추가
+  server: {
+    host: "0.0.0.0",
+    port: 3000,
   },
   async rewrites() {
     return [

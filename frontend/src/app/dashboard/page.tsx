@@ -157,19 +157,72 @@ export default function DashboardPage() {
     }
   }
 
-  const getDownloadUrl = (linkId: string) => {
-    return `/api/download/${linkId}`
-  }
-
-  const handleDownloadFile = async (linkId: string, filename: string) => {
+  const handleDownloadFile = async (linkId: string, filename: string, permission: string) => {
     try {
-      const response = await axios.get(`/api/download/${linkId}`, {
-        headers: getAuthHeaders(),
-        responseType: "blob",
+      const token = localStorage.getItem("token")
+
+      // URL 파라미터 구성
+      let downloadUrl = `/api/download/${linkId}`
+      const params = new URLSearchParams()
+
+      // protected 파일의 경우 비밀번호 입력 받기
+      if (permission === "protected") {
+        const password = prompt("비밀번호를 입력하세요:")
+        if (!password) {
+          setMessage({ type: "error", text: "비밀번호가 필요합니다." })
+          return
+        }
+        params.append("password", password)
+      }
+
+      if (params.toString()) {
+        downloadUrl += `?${params.toString()}`
+      }
+
+      // 헤더 구성
+      const headers: Record<string, string> = {
+        Accept: "*/*",
+      }
+
+      // private 파일이거나 로그인된 상태면 토큰 추가
+      if (token && (permission === "private" || permission === "protected")) {
+        headers.Authorization = `Bearer ${token}`
+      }
+
+      console.log("Download URL:", downloadUrl)
+      console.log("Headers:", headers)
+
+      const response = await fetch(downloadUrl, {
+        method: "GET",
+        headers,
       })
 
+      console.log("Response status:", response.status)
+      console.log("Response headers:", Object.fromEntries(response.headers.entries()))
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          localStorage.removeItem("token")
+          router.push("/auth")
+          return
+        }
+        if (response.status === 403) {
+          setMessage({ type: "error", text: "접근 권한이 없거나 비밀번호가 틀렸습니다." })
+          return
+        }
+        if (response.status === 404) {
+          setMessage({ type: "error", text: "파일을 찾을 수 없습니다." })
+          return
+        }
+        throw new Error(`다운로드 실패: ${response.status} ${response.statusText}`)
+      }
+
+      // 파일 데이터를 blob으로 받기
+      const blob = await response.blob()
+      console.log("Blob size:", blob.size)
+
       // 파일 다운로드 처리
-      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const url = window.URL.createObjectURL(blob)
       const link = document.createElement("a")
       link.href = url
       link.setAttribute("download", filename)
@@ -177,8 +230,14 @@ export default function DashboardPage() {
       link.click()
       link.remove()
       window.URL.revokeObjectURL(url)
+
+      setMessage({ type: "success", text: "파일 다운로드가 완료되었습니다." })
     } catch (error: any) {
-      setMessage({ type: "error", text: "파일 다운로드에 실패했습니다." })
+      console.error("Download error:", error)
+      setMessage({
+        type: "error",
+        text: error.message || "파일 다운로드에 실패했습니다.",
+      })
     }
   }
 
@@ -244,7 +303,7 @@ export default function DashboardPage() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleDownloadFile(file.linkId, file.originalFilename)}
+                        onClick={() => handleDownloadFile(file.linkId, file.originalFilename, file.permission)}
                       >
                         <Download className="h-4 w-4 mr-1" />
                         다운로드
