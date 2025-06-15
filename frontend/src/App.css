@@ -1,0 +1,39 @@
+.App {
+  text-align: center;
+  padding: 2rem;
+}
+
+.App-header {
+  background-color: #282c34;
+  padding: 2rem;
+  color: white;
+  border-radius: 8px;
+}
+
+.upload-section {
+  margin-top: 2rem;
+}
+
+.file-list {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.file-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  color: #333;
+}
+
+input[type="file"] {
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  border: 2px dashed #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
